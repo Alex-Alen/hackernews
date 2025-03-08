@@ -91,9 +91,15 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
         final post = posts[index];
         final time = DateTime.fromMillisecondsSinceEpoch(post['time'] * 1000);
         final formattedTime = DateFormat('yyyy-MM-dd HH:mm').format(time);
-        return Column(
-          children: [
-            ListTile(
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.person, color: Colors.black54),
               title: Text(post['title'] ?? 'No Title'),
               subtitle: Text('By ${post['by']} · $formattedTime'),
               onTap: () {
@@ -108,7 +114,7 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
                 }
               },
             ),
-          ],
+          ),
         );
       },
     );

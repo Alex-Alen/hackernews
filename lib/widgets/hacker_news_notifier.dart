@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,24 +12,20 @@ final hackerNewsProvider =
     StateNotifierProvider<HackerNewsNotifier, List<Map<String, dynamic>>>((
       ref,
     ) {
-      return HackerNewsNotifier(ref);
+      return HackerNewsNotifier(ref, []);
     });
 
 class HackerNewsNotifier extends StateNotifier<List<Map<String, dynamic>>> {
-  HackerNewsNotifier(this.ref) : super([]);
+  HackerNewsNotifier(this.ref, List<int> ids) : super([]) {
+    _allIds = ids;
+    fetchNextBatch();
+  }
+
   final Ref ref;
   int _page = 0;
   final int _pageSize = 10;
   List<int> _allIds = [];
   bool _isLoading = false;
-
-  Future<void> fetchIds(String endpoint) async {
-    if (_allIds.isEmpty) {
-      final response = await ref.read(dioProvider).get<List<dynamic>>(endpoint);
-      _allIds = List<int>.from(response.data!);
-    }
-    fetchNextBatch();
-  }
 
   Future<void> fetchNextBatch() async {
     if (_isLoading || _page * _pageSize >= _allIds.length) return;
@@ -51,12 +48,12 @@ class HackerNewsNotifier extends StateNotifier<List<Map<String, dynamic>>> {
 }
 
 class HackerNewsList extends ConsumerStatefulWidget {
-  final String endpoint;
+  final List<int> ids;
   final bool showProfileButton;
 
   const HackerNewsList({
     super.key,
-    required this.endpoint,
+    required this.ids,
     this.showProfileButton = true,
   });
 
@@ -70,7 +67,8 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
   @override
   void initState() {
     super.initState();
-    ref.read(hackerNewsProvider.notifier).fetchIds(widget.endpoint);
+    ref.read(hackerNewsProvider.notifier)._allIds = widget.ids;
+    ref.read(hackerNewsProvider.notifier).fetchNextBatch();
     _scrollController.addListener(_onScroll);
   }
 
@@ -87,8 +85,8 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
     }
   }
 
-  void _onProfileTap() {
-    print('Profile pressed');
+  void _onProfileTap(String author) {
+    context.push('/author/$author');
   }
 
   @override
@@ -98,8 +96,18 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
 
     return Stack(
       children: [
-        if (isLoading && posts.isEmpty)
-          Center(child: CircularProgressIndicator())
+        if (posts.isEmpty)
+          FutureBuilder(
+            future: Future.delayed(const Duration(seconds: 3)),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (posts.isEmpty) {
+                return const Center(child: Text("There is no available posts"));
+              }
+              return const SizedBox();
+            },
+          )
         else
           ListView.builder(
             controller: _scrollController,
@@ -124,7 +132,7 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
                     leading:
                         widget.showProfileButton
                             ? GestureDetector(
-                              onTap: _onProfileTap,
+                              onTap: () => _onProfileTap(post['by']),
                               child: const Icon(
                                 Icons.person,
                                 color: Colors.black54,
@@ -138,7 +146,7 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
                         _openUrl(post['url']);
                       } else {
                         toastification.show(
-                          title: Text("No link available for this item"),
+                          title: const Text("No link available for this item"),
                           type: ToastificationType.error,
                           autoCloseDuration: const Duration(seconds: 3),
                         );

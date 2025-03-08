@@ -6,7 +6,12 @@ import 'package:toastification/toastification.dart';
 void main() {
   runApp(
     ProviderScope(
-      child: ToastificationWrapper(child: MaterialApp(home: const MyApp())),
+      child: ToastificationWrapper(
+        child: MaterialApp(
+          home: const MyApp(),
+          debugShowCheckedModeBanner: false,
+        ),
+      ),
     ),
   );
 }

@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
           Expanded(
             child: HackerNewsList(
               endpoint: 'https://hacker-news.firebaseio.com/v0/topstories.json',
+              showProfileButton: false,
             ),
           ),
         ],

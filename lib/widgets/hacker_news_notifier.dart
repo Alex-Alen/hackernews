@@ -52,7 +52,14 @@ class HackerNewsNotifier extends StateNotifier<List<Map<String, dynamic>>> {
 
 class HackerNewsList extends ConsumerStatefulWidget {
   final String endpoint;
-  const HackerNewsList({super.key, required this.endpoint});
+  final bool
+  showProfileButton;
+
+  const HackerNewsList({
+    super.key,
+    required this.endpoint,
+    this.showProfileButton = true,
+  });
 
   @override
   ConsumerState<HackerNewsList> createState() => _HackerNewsListState();
@@ -99,7 +106,10 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: ListTile(
-              leading: const Icon(Icons.person, color: Colors.black54),
+              leading:
+                  widget.showProfileButton
+                      ? const Icon(Icons.person, color: Colors.black54)
+                      : null,
               title: Text(post['title'] ?? 'No Title'),
               subtitle: Text('By ${post['by']} · $formattedTime'),
               onTap: () {

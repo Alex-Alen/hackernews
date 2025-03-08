@@ -94,45 +94,78 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(hackerNewsProvider);
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: posts.length,
-      itemBuilder: (context, index) {
-        final post = posts[index];
-        final time = DateTime.fromMillisecondsSinceEpoch(post['time'] * 1000);
-        final formattedTime = DateFormat('yyyy-MM-dd HH:mm').format(time);
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              leading:
-                  widget.showProfileButton
-                      ? GestureDetector(
-                        onTap: _onProfileTap,
-                        child: const Icon(Icons.person, color: Colors.black54),
-                      )
-                      : null,
-              title: Text(post['title'] ?? 'No Title'),
-              subtitle: Text('By ${post['by']} · $formattedTime'),
-              onTap: () {
-                if (post['url'] != null) {
-                  _openUrl(post['url']);
-                } else {
-                  toastification.show(
-                    title: Text("No link available for this item"),
-                    type: ToastificationType.error,
-                    autoCloseDuration: const Duration(seconds: 3),
-                  );
-                }
-              },
+    final isLoading = ref.watch(hackerNewsProvider.notifier)._isLoading;
+
+    return Stack(
+      children: [
+        if (isLoading && posts.isEmpty)
+          Center(child: CircularProgressIndicator())
+        else
+          ListView.builder(
+            controller: _scrollController,
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              final time = DateTime.fromMillisecondsSinceEpoch(
+                post['time'] * 1000,
+              );
+              final formattedTime = DateFormat('yyyy-MM-dd HH:mm').format(time);
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading:
+                        widget.showProfileButton
+                            ? GestureDetector(
+                              onTap: _onProfileTap,
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.black54,
+                              ),
+                            )
+                            : null,
+                    title: Text(post['title'] ?? 'No Title'),
+                    subtitle: Text('By ${post['by']} · $formattedTime'),
+                    onTap: () {
+                      if (post['url'] != null) {
+                        _openUrl(post['url']);
+                      } else {
+                        toastification.show(
+                          title: Text("No link available for this item"),
+                          type: ToastificationType.error,
+                          autoCloseDuration: const Duration(seconds: 3),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        if (isLoading && posts.isNotEmpty)
+          Positioned(
+            bottom: 10,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const CircularProgressIndicator(),
+              ),
             ),
           ),
-        );
-      },
+      ],
     );
   }
 }

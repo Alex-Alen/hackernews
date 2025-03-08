@@ -52,8 +52,7 @@ class HackerNewsNotifier extends StateNotifier<List<Map<String, dynamic>>> {
 
 class HackerNewsList extends ConsumerStatefulWidget {
   final String endpoint;
-  final bool
-  showProfileButton;
+  final bool showProfileButton;
 
   const HackerNewsList({
     super.key,
@@ -88,6 +87,10 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
     }
   }
 
+  void _onProfileTap() {
+    print('Profile pressed');
+  }
+
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(hackerNewsProvider);
@@ -108,7 +111,10 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
             child: ListTile(
               leading:
                   widget.showProfileButton
-                      ? const Icon(Icons.person, color: Colors.black54)
+                      ? GestureDetector(
+                        onTap: _onProfileTap,
+                        child: const Icon(Icons.person, color: Colors.black54),
+                      )
                       : null,
               title: Text(post['title'] ?? 'No Title'),
               subtitle: Text('By ${post['by']} · $formattedTime'),

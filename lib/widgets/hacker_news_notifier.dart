@@ -151,7 +151,7 @@ class _HackerNewsListState extends ConsumerState<HackerNewsList> {
           ),
         if (isLoading && posts.isNotEmpty)
           Positioned(
-            bottom: 10,
+            bottom: 30,
             left: 0,
             right: 0,
             child: Center(

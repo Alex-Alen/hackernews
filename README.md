@@ -20,8 +20,8 @@ A Flutter application that fetches and displays top stories from **Hacker News**
 
 1. Clone this repository:
    ```sh
-   git clone https://github.com/yourusername/hackernews-flutter.git
-   cd hackernews-flutter
+   git clone https://github.com/Alex-Alen/hackernews.git
+   cd hackernews
    ```
 2. Install dependencies:
    ```sh

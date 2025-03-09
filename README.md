@@ -58,3 +58,8 @@ Key endpoints used:
   GET https://hacker-news.firebaseio.com/v0/user/{username}.json
   ```
 
+## Screenshots
+![Simulator Screenshot - iPhone 15 - 2025-03-09 at 18 21 10](https://github.com/user-attachments/assets/0d08e351-49cc-4002-9b91-7188cf96d7f5)
+![Simulator Screenshot - iPhone 15 - 2025-03-09 at 18 21 16](https://github.com/user-attachments/assets/68198368-50a0-45b5-b323-f98bef35cb7e)
+![Simulator Screenshot - iPhone 15 - 2025-03-09 at 18 21 27](https://github.com/user-attachments/assets/65da5b66-9916-498f-988c-109dfe5ffa7c)
+

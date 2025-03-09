@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:html/parser.dart';
 
@@ -53,20 +54,111 @@ class AuthorState extends State<Author> {
           }
 
           final data = snapshot.data!;
-          final createdTimestamp = DateTime.fromMillisecondsSinceEpoch(data['created'] * 1000);
-          final formattedTimestamp = DateFormat('yyyy-MM-dd HH:mm').format(createdTimestamp);
+          final createdTimestamp = DateTime.fromMillisecondsSinceEpoch(
+            data['created'] * 1000,
+          );
+          final formattedTimestamp = DateFormat(
+            'yyyy-MM-dd HH:mm',
+          ).format(createdTimestamp);
           final about = data['about'] ?? 'No about section available';
+          final authorPosts = data['submitted'] ?? '[]';
           final parsedAbout = parseHtmlContent(about);
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Created: $formattedTimestamp', style: TextStyle(fontSize: 16)),
-                SizedBox(height: 8),
-                Text('About: $parsedAbout', style: TextStyle(fontSize: 16)),
-              ],
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_month_rounded,
+                              color: Colors.grey[200],
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'Profile created: ',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            Text(formattedTimestamp),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.lightbulb, color: Colors.grey[200]),
+                                SizedBox(width: 5),
+                                Text(
+                                  'About',
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Text(
+                                parsedAbout,
+                                style: TextStyle(fontSize: 16),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    InkWell(
+                      onTap: () => context.push('/author/${widget.authorName}/$authorPosts'),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(width: 5),
+                              Text(
+                                "View ${widget.authorName}'s posts",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[200],
+                                ),
+                              ),
+                              SizedBox(width: 5),
+                              Icon(Icons.post_add, color: Colors.grey[200]),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },

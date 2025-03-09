@@ -7,8 +7,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class NewsList extends StatefulWidget {
   final List<int> postIds;
+  final bool isUsersPost;
 
-  const NewsList({super.key, required this.postIds});
+  const NewsList({super.key, required this.postIds, required this.isUsersPost});
 
   @override
   NewsListState createState() => NewsListState();
@@ -65,7 +66,7 @@ class NewsListState extends State<NewsList> {
     await launchUrl(Uri.parse(url));
   }
 
-  _openAuthorsPage(String authorName){
+  _openAuthorsPage(String authorName) {
     context.push('/author/$authorName');
   }
 
@@ -89,6 +90,11 @@ class NewsListState extends State<NewsList> {
             fetchNextPage: fetchNextPage,
             builderDelegate: PagedChildBuilderDelegate<Map<String, dynamic>>(
               itemBuilder: (context, post, index) {
+                if (post['title'] == null ||
+                    post['title'].toString().trim().isEmpty) {
+                  return SizedBox.shrink(); // Skip rendering this item
+                }
+
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -98,30 +104,38 @@ class NewsListState extends State<NewsList> {
                     ),
                     child: Row(
                       children: [
-                        SizedBox(width: 10),
-                        InkWell(
-                          onTap: () => _openAuthorsPage(post['by']),
-                          child: Container(
-                            height: 35,
-                            width: 35,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[600],
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.person,
-                                size: 20,
-                                color: Colors.white,
+                        if (!widget.isUsersPost) ...[
+                          SizedBox(width: 10),
+                          InkWell(
+                            onTap: () => _openAuthorsPage(post['by']),
+                            child: Container(
+                              height: 35,
+                              width: 35,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[600],
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.person,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                         Expanded(
                           child: ListTile(
-                            title: Text(post['title'] ?? 'No Title'),
+                            title: Text(post['title']),
                             subtitle: Text(
-                              'by ${post['by']} on ${_dateFormat.format(DateTime.fromMillisecondsSinceEpoch(post['time'] * 1000))}',
+                              !widget.isUsersPost
+                                  ? 'by ${post['by']} on ${_dateFormat.format(DateTime.fromMillisecondsSinceEpoch(post['time'] * 1000))}'
+                                  : _dateFormat.format(
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                      post['time'] * 1000,
+                                    ),
+                                  ),
                             ),
                             onTap: () {
                               _openInBrowser(post['url']);
